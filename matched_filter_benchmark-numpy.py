@@ -23,10 +23,10 @@ def run_match_filter(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Benchmark Match Filter Performance with NumPy.")
     parser.add_argument("--list_size", type=int, default=1000, help="Number of match filter operations")
-    parser.add_argument("--array_size", type=int, default=int(2**20), help="Size of each array")
+    parser.add_argument("--array_size", type=int, default=int(2**22), help="Size of each array")
     parser.add_argument("--cores", type=int, nargs="+", default=[1,2,3,4,5,6,7,8], help="List of core counts to test")
     parser.add_argument("--no_cpu", action="store_true", help="Skip CPU benchmarking")
-    parser.add_argument("--output", type=str, default="match_filter_results_numpy.h5", help="Output HDF5 file")
+    parser.add_argument("--output", type=str, default="match_filter_results_22.h5", help="Output HDF5 file")
     args = parser.parse_args()
 
     # Initialize arrays
