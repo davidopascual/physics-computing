@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Benchmark outputs — data files, not code
+*.h5
+*_timestamps.json
+
+# macmon monitoring data and logs
+monitoring_results/
+*.json
+*.log
+
+# Generated plots
+*.png
+
+# Jupyter checkpoints
+.ipynb_checkpoints/

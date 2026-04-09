@@ -2,11 +2,20 @@
 # Benchmark matched filter using NumPy (single core, CPU only)
 # Saves results to HDF5 file
 
+# Force NumPy to use single thread (relevant for Apple Silicon)
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1" 
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+
+
 import numpy as np
 import time
 import h5py
 import argparse
 import multiprocessing
+import json
 # Define matched filter using NumPy
 
 def define_match_filter(a, b):
@@ -39,20 +48,26 @@ if __name__ == "__main__":
     core_counts = []
     avg_times = []
     total_times = []
+    fft_timestamps = {"benchmark_start": time.time(), "core_tests": []}
 
     for ncores in args.cores:
         with multiprocessing.Pool(ncores) as pool:
             if not args.no_cpu:
                 start_time = time.perf_counter()
+                fft_start = time.time()
                 results = list(pool.map(run_match_filter, ab_list))
+                fft_end = time.time()
                 total_time = time.perf_counter() - start_time
                 avg_time = total_time / args.list_size
-            else: 
+            else:
                 total_time.append(None)
         core_counts.append(ncores)
         avg_times.append(avg_time)
         total_times.append(total_time)
+        fft_timestamps["core_tests"].append({"ncores": ncores, "start": fft_start, "end": fft_end})
         print(f"Cores: {ncores} | Avg time/op: {avg_time:.6f} s | Total time: {total_time:.2f} s")
+
+    fft_timestamps["benchmark_end"] = time.time()
 
     # Save results
     with h5py.File(args.output, "w") as hdf:
@@ -63,7 +78,12 @@ if __name__ == "__main__":
         hdf.create_dataset("array_size", data=np.array([args.array_size]))
         hdf.create_dataset("list_size", data=np.array([args.list_size]))
 
+    ts_output = args.output.replace(".h5", "_timestamps.json")
+    with open(ts_output, "w") as f:
+        json.dump(fft_timestamps, f, indent=2)
+
     print("Benchmark complete. Results saved to {}".format(args.output))
+    print(f"FFT timestamps saved to {ts_output}")
 
     # Plot results
     try:
