@@ -11,8 +11,5 @@ monitoring_results/
 *.json
 *.log
 
-# Generated plots
-*.png
-
 # Jupyter checkpoints
 .ipynb_checkpoints/
