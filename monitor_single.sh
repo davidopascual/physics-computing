@@ -11,7 +11,9 @@ if [ $# -lt 1 ]; then
 fi
 
 SCRIPT_PATH="$1"
-OUTPUT_PREFIX="${2:-monitoring_results/monitor_$(basename $SCRIPT_PATH .py)_$(date +%Y%m%d_%H%M%S)}"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BASE_PREFIX="${2:-monitoring_results/monitor_$(basename $SCRIPT_PATH .py)}"
+OUTPUT_PREFIX="${BASE_PREFIX}_${TIMESTAMP}"
 CONDA_ENV="$3"
 
 # Create monitoring directory if it doesn't exist
@@ -28,12 +30,15 @@ echo "Starting system monitoring..."
 macmon pipe --interval 1000 --soc-info > "${OUTPUT_PREFIX}.json" &
 MACMON_PID=$!
 
+# Use python3 if python is not available
+PYTHON=$(command -v python || command -v python3)
+
 # Run the script
 echo "Running benchmark script..."
 if [ -n "$CONDA_ENV" ]; then
-    conda run -n "$CONDA_ENV" python "$SCRIPT_PATH" > "${OUTPUT_PREFIX}.log" 2>&1
+    conda run -n "$CONDA_ENV" "$PYTHON" "$SCRIPT_PATH" > "${OUTPUT_PREFIX}.log" 2>&1
 else
-    python "$SCRIPT_PATH" > "${OUTPUT_PREFIX}.log" 2>&1
+    "$PYTHON" "$SCRIPT_PATH" > "${OUTPUT_PREFIX}.log" 2>&1
 fi
 SCRIPT_EXIT_CODE=$?
 
