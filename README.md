@@ -105,23 +105,29 @@ sleep 2
 kill $MACMON_PID && wait $MACMON_PID
 ```
 
-Alternatively, use `monitor_single.sh` for a default run (no custom arguments):
+Alternatively, use `monitor_single.sh` for a default run (no custom arguments). Each invocation writes a new timestamped file under `monitoring_results/`:
 
 ```bash
 chmod +x monitor_single.sh
-./monitor_single.sh matched_filter_benchmark-mlx-single.py monitoring_results/my_run
+./monitor_single.sh matched_filter_benchmark-mlx-single.py
 ```
 
 ### Step 2 — Generate the plot
 
+Omit `--macmon` and `--timestamps` to auto-detect the most recently modified files:
+
+```bash
+python plot_macmon_with_fft_timing.py --output my_run_plot.png
+```
+
+Or pass paths explicitly:
+
 ```bash
 python plot_macmon_with_fft_timing.py \
-  --macmon monitoring_results/my_run.json \
+  --macmon monitoring_results/monitor_matched_filter_benchmark-mlx-single_<timestamp>.json \
   --timestamps results_mlx_timestamps.json \
   --output my_run_plot.png
 ```
-
-Omit `--macmon` and `--timestamps` to auto-detect the most recently modified files.
 
 ---
 
